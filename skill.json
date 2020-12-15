@@ -34,12 +34,12 @@
         "en-US": {
           "description": "Sample Full Description",
           "examplePhrases": [
-            "Alexa open hello world",
-            "hello",
-            "help"
+            "Alexa open template one",
+            "Alexa start template one",
+            "Alexa launch template one"
           ],
           "keywords": [],
-          "name": "delete this",
+          "name": "template one",
           "summary": "Sample Short Description"
         }
       },
