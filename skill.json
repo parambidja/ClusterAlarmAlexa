@@ -40,7 +40,9 @@
           ],
           "keywords": [],
           "name": "template one",
-          "summary": "Sample Short Description"
+          "summary": "Sample Short Description",
+          "smallIconUri": "file://assets/images/en-US_smallIconUri.png",
+          "largeIconUri": "file://assets/images/en-US_largeIconUri.png"
         }
       },
       "testingInstructions": "Sample Testing Instructions."
