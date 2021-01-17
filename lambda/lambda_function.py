@@ -70,9 +70,6 @@ class LaunchRequestHandler(AbstractRequestHandler):
             speech_output = random.choice(language_prompts["GREETING_UNKNOWN_USER"]).format(skill_name)
             reprompt = random.choice(language_prompts["GREETING_UNKNOWN_USER_REPROMPT"])
         
-        session_attributes["repeat_speech_output"] = speech_output
-        session_attributes["repeat_reprompt_output"] = reprompt
-        
         return (
             handler_input.response_builder
                 .speak(speech_output)
@@ -124,10 +121,10 @@ class RepeatIntentHandler(AbstractRequestHandler):
         session_attributes = handler_input.attributes_manager.session_attributes
         
         repeat_speech_output = session_attributes["repeat_speech_output"]
-        repeat_reprompt_output = session_attributes["repeat_reprompt_output"]
+        repeat_reprompt = session_attributes["repeat_reprompt"]
         
         speech_output = random.choice(language_prompts["REPEAT"]).format(repeat_speech_output)
-        reprompt = random.choice(language_prompts["REPEAT_REPROMPT"]).format(repeat_reprompt_output)
+        reprompt = random.choice(language_prompts["REPEAT_REPROMPT"]).format(repeat_reprompt)
         
         return (
             handler_input.response_builder
@@ -280,6 +277,18 @@ class LocalizationInterceptor(AbstractRequestInterceptor):
         
         handler_input.attributes_manager.request_attributes["_"] = language_prompts
 
+# This interceptor fetches the speech_output and reprompt messages from the response and pass them as
+# session attributes to be used by the repeat intent handler later on.
+class RepeatInterceptor(AbstractResponseInterceptor):
+
+    def process(self, handler_input, response):
+        session_attributes = handler_input.attributes_manager.session_attributes
+        session_attributes["repeat_speech_output"] = response.output_speech.ssml.replace("<speak>","").replace("</speak>","")
+        try:
+            session_attributes["repeat_reprompt"] = response.reprompt.output_speech.ssml.replace("<speak>","").replace("</speak>","")
+        except:
+            session_attributes["repeat_reprompt"] = response.output_speech.ssml.replace("<speak>","").replace("</speak>","")
+
 
 # Skill Builder
 # Define a skill builder instance and add all the request handlers,
@@ -301,6 +310,7 @@ sb.add_exception_handler(CatchAllExceptionHandler())
 
 sb.add_global_request_interceptor(LocalizationInterceptor())
 sb.add_global_request_interceptor(InvalidConfigInterceptor())
+sb.add_global_response_interceptor(RepeatInterceptor())
 sb.add_global_request_interceptor(RequestLogger())
 sb.add_global_response_interceptor(ResponseLogger())
 
